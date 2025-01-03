@@ -1,22 +1,25 @@
--- Create the addon frame and register events
-local LevelUpDisplay = CreateFrame("Frame", "LevelUpDisplayFrame")
-LevelUpDisplay:RegisterEvent("PLAYER_LEVEL_UP")
+local _, namespace = ...
 
 -- Reference to the currently displayed frame
-local currentFrame = nil
+namespace.currentFrame = nil
 
 -- Function to create and show the level-up message
 local function ShowLevelUpMessage(level, statGains)
+	if not namespace:GetOption("enableAddon") then
+		return
+	end
+
 	-- Hide any existing frame to prevent overlap
-	if currentFrame and currentFrame:IsShown() then
-		currentFrame:Hide()
+	if namespace.currentFrame and namespace.currentFrame:IsShown() then
+		namespace.currentFrame:Hide()
 	end
 
 	-- Create the main frame for the level-up display
 	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:SetSize(600, 150) -- Adjusted width to accommodate horizontal layout
 	frame:SetPoint("CENTER", 0, 400)
-	currentFrame = frame -- Save reference to the current frame
+	frame:SetScale(namespace:GetOption("frameScale")) -- Apply scale from settings
+	namespace.currentFrame = frame -- Save reference to the current frame
 
 	-- Background texture
 	local background = frame:CreateTexture(nil, "BACKGROUND")
@@ -96,31 +99,33 @@ local function ShowLevelUpMessage(level, statGains)
 	frame:Show()
 	fadeOutAnimation:Play()
 
-	-- Perform the "CHEER" emote
-	if math.random() < 0.5 then
-		DoEmote("CHEER")
+	-- Perform the "CHEER" emote if enabled
+	if namespace:GetOption("cheerOnLevelUp") then
+		if math.random() < 0.5 then
+			DoEmote("CHEER")
+		end
+	end
+
+	-- Send chat emote if enabled
+	if namespace:GetOption("chatEmoteOnLevelUp") then
 		SendChatMessage("has reached level " .. level .. "!", "EMOTE")
 	end
 end
 
 -- Event handler
-LevelUpDisplay:SetScript("OnEvent", function(_, event, ...)
-	if event == "PLAYER_LEVEL_UP" then
-		local level, _, _, _, _, strengthDelta, agilityDelta, staminaDelta, intellectDelta, spiritDelta = ...
-		local statGains = {
-			Strength = strengthDelta or 0,
-			Agility = agilityDelta or 0,
-			Stamina = staminaDelta or 0,
-			Intellect = intellectDelta or 0,
-			Spirit = spiritDelta or 0,
-		}
-		ShowLevelUpMessage(level, statGains)
-	end
+namespace:RegisterEvent("PLAYER_LEVEL_UP", function(_, level, _, _, _, strengthDelta, agilityDelta, staminaDelta, intellectDelta, spiritDelta)
+	local statGains = {
+		Strength = strengthDelta or 0,
+		Agility = agilityDelta or 0,
+		Stamina = staminaDelta or 0,
+		Intellect = intellectDelta or 0,
+		Spirit = spiritDelta or 0,
+	}
+	ShowLevelUpMessage(level, statGains)
 end)
 
 -- Slash command for testing
-SLASH_LEVELUPDISPLAY1 = "/leveluptest"
-SlashCmdList["LEVELUPDISPLAY"] = function(msg)
+namespace:RegisterSlash("/leveluptest", function(msg)
 	local testLevel = tonumber(msg) or math.random(2, 60)
 	local statGains = {
 		Strength = math.random(0, 5),
@@ -130,4 +135,4 @@ SlashCmdList["LEVELUPDISPLAY"] = function(msg)
 		Spirit = math.random(0, 5),
 	}
 	ShowLevelUpMessage(testLevel, statGains)
-end
+end)
