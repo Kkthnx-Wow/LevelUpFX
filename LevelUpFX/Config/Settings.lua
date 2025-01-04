@@ -39,47 +39,34 @@ namespace:RegisterSettings("LevelUpFXDB", {
 		title = "X Position",
 		tooltip = "Adjust the horizontal position of the level-up notification frame.",
 		default = 0,
-		minValue = -500,
-		maxValue = 500,
+		minValue = GetScreenWidth() * -1,
+		maxValue = GetScreenWidth(),
 		valueStep = 1,
-		valueFormat = "%d", -- Format value to whole number
-		callback = function(value)
-			if namespace.currentFrame then
-				namespace.currentFrame:ClearAllPoints()
-				namespace.currentFrame:SetPoint("CENTER", value, namespace:GetOption("frameAnchorY"))
-			end
-		end,
+		valueFormat = "%d",
 	},
 	{
 		key = "frameAnchorY",
 		type = "slider",
 		title = "Y Position",
 		tooltip = "Adjust the vertical position of the level-up notification frame.",
-		default = 0,
-		minValue = -500,
-		maxValue = 500,
+		default = 400,
+		minValue = GetScreenHeight() * -1,
+		maxValue = GetScreenHeight(),
 		valueStep = 1,
-		valueFormat = "%d", -- Format value to whole number
-		callback = function(value)
-			if namespace.currentFrame then
-				namespace.currentFrame:ClearAllPoints()
-				namespace.currentFrame:SetPoint("CENTER", namespace:GetOption("frameAnchorX"), value)
-			end
-		end,
+		valueFormat = "%d",
 	},
+	{
+		key = "popupDuration",
+		type = "slider",
+		title = "Popup Duration",
+		tooltip = "Adjust the duration of the level-up notification popup.",
+		default = 2,
+		minValue = 1,
+		maxValue = 5,
+		valueStep = 1,
+		valueFormat = "%d",
+	}
 })
-
-function UnlockFrame()
-	LevelUpTest("test"); -- Display the test message.
-	if not namespace.currentFrame then return end
-	namespace.currentFrame:Show()
-	namespace.currentFrame:SetMovable(true)
-	namespace.currentFrame:EnableMouse(true)
-	namespace.currentFrame:RegisterForDrag("LeftButton")
-	-- Save the new position when the frame is moved
-	namespace.currentFrame:SetScript("OnDragStart", function(self) self:StartMoving() end)
-	namespace.currentFrame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint() namespace:SetOption("frameAnchorX", xOfs) namespace:SetOption("frameAnchorY", yOfs) end)
-end
 
 namespace:RegisterOptionCallback("enableAddon", function(value)
 	if not value then
