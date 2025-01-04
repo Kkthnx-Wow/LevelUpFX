@@ -17,7 +17,9 @@ local function ShowLevelUpMessage(level, statGains)
 	-- Create the main frame for the level-up display
 	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:SetSize(600, 150) -- Adjusted width to accommodate horizontal layout
-	frame:SetPoint("CENTER", 0, 400)
+	local xPos = namespace:GetOption("frameAnchorX")
+	local yPos = namespace:GetOption("frameAnchorY")
+	frame:SetPoint("CENTER", xPos, yPos)
 	frame:SetScale(namespace:GetOption("frameScale")) -- Apply scale from settings
 	namespace.currentFrame = frame -- Save reference to the current frame
 
@@ -124,15 +126,17 @@ namespace:RegisterEvent("PLAYER_LEVEL_UP", function(_, level, _, _, _, strengthD
 	ShowLevelUpMessage(level, statGains)
 end)
 
+function LevelUpTest(msg)
+	if msg == "test" then 
+		ShowLevelUpMessage(math.random(2, 60), {Strength = math.random(1, 5), Agility = math.random(1, 5), Stamina = math.random(1, 5), Intellect = math.random(1, 5), Spirit = math.random(1, 5)})
+	elseif msg == "move" then
+		UnlockFrame();
+		print("Frame Unlocked. Drag To A Desired Position.")
+	else
+		print("Usage: /lu test - Display a test level-up message")
+		print("Usage: /lu move - Unlock the level-up frame for dragging")
+	end
+end
+
 -- Slash command for testing
-namespace:RegisterSlash("/leveluptest", function(msg)
-	local testLevel = tonumber(msg) or math.random(2, 60)
-	local statGains = {
-		Strength = math.random(0, 5),
-		Agility = math.random(0, 5),
-		Stamina = math.random(0, 5),
-		Intellect = math.random(0, 5),
-		Spirit = math.random(0, 5),
-	}
-	ShowLevelUpMessage(testLevel, statGains)
-end)
+namespace:RegisterSlash("/lu", function(msg) LevelUpTest(msg) end)
