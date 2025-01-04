@@ -2,9 +2,20 @@ local _, namespace = ...
 
 -- Reference to the currently displayed frame
 namespace.currentFrame = nil
+local isMoving = false;
+
+-- Get Frame Position, Save to Settings
+local function GetFramePosition(frame)
+	local _, _, _, x, y = frame:GetPoint()
+	local anchorX = math.floor(x)
+	local anchorY = math.floor(y)
+	namespace:SetOption("frameAnchorX", anchorX)
+	namespace:SetOption("frameAnchorY", anchorY)
+	print("Frame Position Set - xPos: " .. anchorX .. " | yPos: " .. anchorY)
+end
 
 -- Function to create and show the level-up message
-local function ShowLevelUpMessage(level, statGains)
+local function ShowLevelUpMessage(level, statGains, isMoving)
 	if not namespace:GetOption("enableAddon") then
 		return
 	end
@@ -17,7 +28,8 @@ local function ShowLevelUpMessage(level, statGains)
 	-- Create the main frame for the level-up display
 	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:SetSize(600, 150) -- Adjusted width to accommodate horizontal layout
-	frame:SetPoint("CENTER", 0, 400)
+	local xPos, yPos = namespace:GetOption("frameAnchorX"), namespace:GetOption("frameAnchorY")
+	frame:SetPoint("CENTER", xPos, yPos)
 	frame:SetScale(namespace:GetOption("frameScale")) -- Apply scale from settings
 	namespace.currentFrame = frame -- Save reference to the current frame
 
@@ -84,20 +96,35 @@ local function ShowLevelUpMessage(level, statGains)
 	end
 
 	-- Fade-out animation
-	local fadeOutAnimation = frame:CreateAnimationGroup()
-	local fadeOut = fadeOutAnimation:CreateAnimation("Alpha")
-	fadeOut:SetFromAlpha(1)
-	fadeOut:SetToAlpha(0)
-	fadeOut:SetDuration(2) -- 2 seconds to fade out
-	fadeOut:SetStartDelay(4) -- Delay before fading
-	fadeOut:SetSmoothing("OUT")
-	fadeOutAnimation:SetScript("OnFinished", function()
-		frame:Hide()
-	end)
-
-	-- Show the frame and start the animation
-	frame:Show()
-	fadeOutAnimation:Play()
+	if not isMoving then
+		local fadeOutAnimation = frame:CreateAnimationGroup()
+		local fadeOut = fadeOutAnimation:CreateAnimation("Alpha")
+		fadeOut:SetFromAlpha(1)
+		fadeOut:SetToAlpha(0)
+		local popupDuration = namespace:GetOption("popupDuration")
+		fadeOut:SetDuration(popupDuration)
+		fadeOut:SetStartDelay(4) -- Delay before fading
+		fadeOut:SetSmoothing("OUT")
+		fadeOutAnimation:SetScript("OnFinished", function()
+			frame:Hide()
+		end)
+		frame:Show()
+		fadeOutAnimation:Play()
+	else
+	-- Allow Dragging During `isMoving`
+		frame:SetMovable(true)
+		frame:EnableMouse(true)
+		frame:RegisterForDrag("LeftButton")
+		frame:SetScript("OnDragStart", function(self) 
+			self:StartMoving()
+			self:ClearAllPoints()
+			end)
+		frame:SetScript("OnDragStop", function(self)
+			self:StopMovingOrSizing()
+			GetFramePosition(self)
+		end)
+		frame:Show()
+	end
 
 	-- Perform the "CHEER" emote if enabled
 	if namespace:GetOption("cheerOnLevelUp") then
@@ -125,14 +152,27 @@ namespace:RegisterEvent("PLAYER_LEVEL_UP", function(_, level, _, _, _, strengthD
 end)
 
 -- Slash command for testing
-namespace:RegisterSlash("/leveluptest", function(msg)
-	local testLevel = tonumber(msg) or math.random(2, 60)
-	local statGains = {
-		Strength = math.random(0, 5),
-		Agility = math.random(0, 5),
-		Stamina = math.random(0, 5),
-		Intellect = math.random(0, 5),
-		Spirit = math.random(0, 5),
-	}
-	ShowLevelUpMessage(testLevel, statGains)
+namespace:RegisterSlash("/lu", function(msg)
+	if msg == "test" then
+		local testLevel = tonumber(msg) or math.random(2, 60)
+		local statGains = {
+			Strength = math.random(0, 5),
+			Agility = math.random(0, 5),
+			Stamina = math.random(0, 5),
+			Intellect = math.random(0, 5),
+			Spirit = math.random(0, 5),
+		}
+		ShowLevelUpMessage(testLevel, statGains, false)
+	elseif msg == "unlock" then
+		ShowLevelUpMessage(60, {Strength = 5, Agility = 5, Stamina = 5, Intellect = 5, Spirit = 5}, true)
+	elseif msg == "lock" then
+		isMoving = false;
+		if namespace.currentFrame then
+			namespace.currentFrame:StopMovingOrSizing()
+			GetFramePosition(namespace.currentFrame)
+			namespace.currentFrame:Hide()
+		end
+	else
+		print("Usage: /lu test [level] | /lu unlock | /lu lock")
+	end
 end)

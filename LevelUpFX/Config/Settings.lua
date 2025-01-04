@@ -33,6 +33,39 @@ namespace:RegisterSettings("LevelUpFXDB", {
 		valueStep = 0.1,
 		valueFormat = "%.1f", -- Format value to 1 decimal place
 	},
+	{
+		key = "frameAnchorX",
+		type = "slider",
+		title = "X Position",
+		tooltip = "Adjust the horizontal position of the level-up notification frame.",
+		default = 0,
+		minValue = GetScreenWidth() * -1,
+		maxValue = GetScreenWidth(),
+		valueStep = 1,
+		valueFormat = "%d",
+	},
+	{
+		key = "frameAnchorY",
+		type = "slider",
+		title = "Y Position",
+		tooltip = "Adjust the vertical position of the level-up notification frame.",
+		default = 400,
+		minValue = GetScreenHeight() * -1,
+		maxValue = GetScreenHeight(),
+		valueStep = 1,
+		valueFormat = "%d",
+	},
+	{
+		key = "popupDuration",
+		type = "slider",
+		title = "Popup Duration",
+		tooltip = "Adjust the duration of the level-up notification popup.",
+		default = 2,
+		minValue = 1,
+		maxValue = 5,
+		valueStep = 1,
+		valueFormat = "%d",
+	}
 })
 
 namespace:RegisterOptionCallback("enableAddon", function(value)
