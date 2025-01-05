@@ -84,6 +84,13 @@ namespace:RegisterSettings("LevelUpFXDB", {
 		valueStep = 1,
 		valueFormat = "%d",
 	},
+	{
+		key = "welcomeMessage",
+		type = "toggle",
+		title = "Show Welcome Message",
+		tooltip = "Show a welcome message with slash commands on first use.",
+		default = true,
+	},
 })
 
 namespace:RegisterOptionCallback("enableAddon", function(value)
@@ -110,4 +117,8 @@ end)
 
 namespace:RegisterOptionCallback("chatEmoteOnLevelUp", function(value)
 	namespace.chatEmoteEnabled = value
+end)
+
+namespace:RegisterOptionCallback("welcomeMessage", function(value)
+	namespace.showWelcomeMessage = value
 end)

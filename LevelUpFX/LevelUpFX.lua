@@ -143,19 +143,16 @@ local function ShowLevelUpMessage(level, statGains, isMoving)
 end
 
 -- Event handler
-namespace:RegisterEvent(
-	"PLAYER_LEVEL_UP",
-	function(_, level, _, _, _, strengthDelta, agilityDelta, staminaDelta, intellectDelta, spiritDelta)
-		local statGains = {
-			Strength = strengthDelta or 0,
-			Agility = agilityDelta or 0,
-			Stamina = staminaDelta or 0,
-			Intellect = intellectDelta or 0,
-			Spirit = spiritDelta or 0,
-		}
-		ShowLevelUpMessage(level, statGains)
-	end
-)
+namespace:RegisterEvent("PLAYER_LEVEL_UP", function(_, level, _, _, _, strengthDelta, agilityDelta, staminaDelta, intellectDelta, spiritDelta)
+	local statGains = {
+		Strength = strengthDelta or 0,
+		Agility = agilityDelta or 0,
+		Stamina = staminaDelta or 0,
+		Intellect = intellectDelta or 0,
+		Spirit = spiritDelta or 0,
+	}
+	ShowLevelUpMessage(level, statGains)
+end)
 
 -- Combat event handlers
 namespace:RegisterEvent("PLAYER_REGEN_DISABLED", function()
@@ -176,6 +173,13 @@ namespace:RegisterEvent("PLAYER_REGEN_ENABLED", function()
 		ShowLevelUpMessage(60, { Strength = 5, Agility = 5, Stamina = 5, Intellect = 5, Spirit = 5 }, true)
 	end
 end)
+
+namespace.OnLoad = function()
+	if namespace:GetOption("welcomeMessage") then
+		print("|cff5bc0beLevelUpFX|r loaded. Type |cff00ff00/lu test [level]|r to test the level-up message.")
+		print("Other commands: |cff00ff00/lu unlock|r to unlock the frame, |cff00ff00/lu lock|r to lock the frame.")
+	end
+end
 
 -- Slash command for testing
 namespace:RegisterSlash("/lu", function(msg)
