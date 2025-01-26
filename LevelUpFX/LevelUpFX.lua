@@ -42,7 +42,7 @@ local function ShowLevelUpMessage(level, statGains, isMoving)
 	background:SetPoint("BOTTOM")
 	background:SetSize(326, 103)
 	background:SetTexCoord(0.00195313, 0.63867188, 0.03710938, 0.23828125)
-	background:SetVertexColor(1, 1, 1, 0.7)
+	background:SetVertexColor(1, 1, 1, 0.6)
 
 	-- Top gold bar
 	local topBar = frame:CreateTexture(nil, "ARTWORK")
@@ -129,6 +129,30 @@ local function ShowLevelUpMessage(level, statGains, isMoving)
 		frame:Show()
 	end
 
+	-- Add screenshot functionality here
+	if namespace:GetOption("screenShotOnLevelUp") then
+		if not namespace.ScreenShotFrame then
+			-- Create the screenshot frame if it doesn't exist
+			namespace.ScreenShotFrame = CreateFrame("Frame")
+			namespace.ScreenShotFrame:Hide()
+			namespace.ScreenShotFrame:SetScript("OnUpdate", function(self, elapsed)
+				self.delay = self.delay - elapsed
+				if self.delay < 0 then
+					Screenshot()
+					self:Hide()
+				end
+			end)
+		end
+
+		-- Check if we should take a screenshot for this level
+		local screenshotLevels = { [10] = true, [20] = true, [30] = true, [40] = true, [50] = true, [60] = true }
+
+		if screenshotLevels[level] or namespace:GetOption("screenShotEveryLevel") then
+			namespace.ScreenShotFrame.delay = 1
+			namespace.ScreenShotFrame:Show()
+		end
+	end
+
 	-- Perform the "CHEER" emote if enabled and not moving
 	if not isMoving and namespace:GetOption("cheerOnLevelUp") then
 		if math.random() < 0.5 then
@@ -142,8 +166,7 @@ local function ShowLevelUpMessage(level, statGains, isMoving)
 	end
 end
 
--- Event handler
-namespace:RegisterEvent("PLAYER_LEVEL_UP", function(_, level, _, _, _, strengthDelta, agilityDelta, staminaDelta, intellectDelta, spiritDelta)
+namespace:RegisterEvent("PLAYER_LEVEL_UP", function(_, level, _, _, _, _, strengthDelta, agilityDelta, staminaDelta, intellectDelta, spiritDelta)
 	local statGains = {
 		Strength = strengthDelta or 0,
 		Agility = agilityDelta or 0,

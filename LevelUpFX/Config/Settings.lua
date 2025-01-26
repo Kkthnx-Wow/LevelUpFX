@@ -16,6 +16,21 @@ namespace:RegisterSettings("LevelUpFXDB", {
 		default = false,
 	},
 	{
+		key = "screenShotOnLevelUp",
+		type = "toggle",
+		title = "Screenshot on Level Up",
+		tooltip = "Automatically take a screenshot one second after leveling up.",
+		default = false,
+	},
+	{
+		key = "screenShotEveryLevel",
+		type = "toggle",
+		title = "Screenshot Every Level",
+		tooltip = "Take a screenshot for every level up, not just at specific levels.",
+		default = false,
+		requires = "screenShotOnLevelUp",
+	},
+	{
 		key = "chatEmoteOnLevelUp",
 		type = "toggle",
 		title = "Send Level-Up Emote in Chat",

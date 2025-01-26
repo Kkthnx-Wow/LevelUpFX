@@ -1,19 +1,19 @@
 local _, addon = ...
 
---[[ namespace:CreateFrame(_..._)
+--[[ namespace:CreateFrame(_..._) ![](https://img.shields.io/badge/function-blue)
 A wrapper for [`CreateFrame`](https://warcraft.wiki.gg/wiki/API_CreateFrame), mixed in with `namespace.eventMixin`.
 --]]
 function addon:CreateFrame(...)
 	return Mixin(CreateFrame(...), addon.eventMixin)
 end
 
-local KEY_DIRECTION_CVAR = 'ActionButtonUseKeyDown'
+local KEY_DIRECTION_CVAR = "ActionButtonUseKeyDown"
 
 local function updateKeyDirection(self)
 	if C_CVar.GetCVarBool(KEY_DIRECTION_CVAR) then
-		self:RegisterForClicks('AnyDown')
+		self:RegisterForClicks("AnyDown")
 	else
-		self:RegisterForClicks('AnyUp')
+		self:RegisterForClicks("AnyUp")
 	end
 end
 
@@ -23,13 +23,13 @@ local function onCVarUpdate(self, cvar)
 	end
 end
 
---[[ namespace:CreateButton(...)
+--[[ namespace:CreateButton(...) ![](https://img.shields.io/badge/function-blue)
 A wrapper for `namespace:CreateFrame(...)`, but will handle key direction preferences of the client.  
 Use this specifically to create clickable buttons.
 --]]
 function addon:CreateButton(...)
 	local button = addon:CreateFrame(...)
-	button:RegisterEvent('CVAR_UPDATE', onCVarUpdate)
+	button:RegisterEvent("CVAR_UPDATE", onCVarUpdate)
 
 	-- the CVar doesn't trigger during login, so we'll have to trigger the handlers ourselves
 	onCVarUpdate(button, KEY_DIRECTION_CVAR)
@@ -54,9 +54,9 @@ do -- scrollbox
 		provider:SetSortComparator(scroll._sort or defaultSort, true)
 
 		local view
-		if scroll.kind == 'list' then
+		if scroll.kind == "list" then
 			view = CreateScrollBoxListLinearView(scroll._insetTop, scroll._insetBottom, scroll._insetLeft, scroll._insetRight, scroll._spacingHorizontal)
-		elseif scroll.kind == 'grid' then
+		elseif scroll.kind == "grid" then
 			local width = scroll:GetWidth() - scroll.bar:GetWidth() - (scroll._insetLeft or 0) - (scroll._insetRight or 0)
 			local stride = math.floor((width - (scroll._spacingHorizontal or 0)) / (scroll._elementWidth + (scroll._spacingHorizontal or 0)))
 			view = CreateScrollBoxListGridView(stride, scroll._insetTop, scroll._insetBottom, scroll._insetLeft, scroll._insetRight, scroll._spacingHorizontal, scroll._spacingVertical)
@@ -66,7 +66,7 @@ do -- scrollbox
 		view:SetDataProvider(provider)
 		view:SetElementExtent(scroll._elementHeight)
 		view:SetElementInitializer(scroll._elementType, function(element, data)
-			if scroll._elementWidth and scroll.kind == 'grid' then
+			if scroll._elementWidth and scroll.kind == "grid" then
 				element:SetWidth(scroll._elementWidth)
 			end
 			if scroll._elementHeight then
@@ -80,8 +80,8 @@ do -- scrollbox
 					for script, callback in next, scroll._scripts do
 						element:SetScript(script, callback)
 
-						if script == 'OnEnter' and not scroll._scripts.OnLeave then
-							element:SetScript('OnLeave', GameTooltip_Hide)
+						if script == "OnEnter" and not scroll._scripts.OnLeave then
+							element:SetScript("OnLeave", GameTooltip_Hide)
 						end
 					end
 				end
@@ -166,21 +166,21 @@ do -- scrollbox
 	end
 
 	local function createScrollWidget(parent, kind)
-		local box = CreateFrame('Frame', nil, parent, 'WowScrollBoxList')
-		box:SetPoint('TOPLEFT')
-		box:SetPoint('BOTTOMRIGHT', -8, 0) -- offset to not overlap scrollbar
+		local box = CreateFrame("Frame", nil, parent, "WowScrollBoxList")
+		box:SetPoint("TOPLEFT")
+		box:SetPoint("BOTTOMRIGHT", -8, 0) -- offset to not overlap scrollbar
 		box.kind = kind
 
-		local bar = CreateFrame('EventFrame', nil, parent, 'MinimalScrollBar')
-		bar:SetPoint('TOPLEFT', box, 'TOPRIGHT')
-		bar:SetPoint('BOTTOMLEFT', box, 'BOTTOMRIGHT')
+		local bar = CreateFrame("EventFrame", nil, parent, "MinimalScrollBar")
+		bar:SetPoint("TOPLEFT", box, "TOPRIGHT")
+		bar:SetPoint("BOTTOMLEFT", box, "BOTTOMRIGHT")
 		box.bar = bar
 
 		return Mixin(box, scrollMixin)
 	end
 
-	--[[ namespace:CreateScrollList(_parent_)
-	Creates and returns a scroll box with scroll bar and a data provider in a list representation.
+	--[[ namespace:CreateScrollList(_parent_) ![](https://img.shields.io/badge/function-blue)
+	Creates and returns a scroll box with scroll bar and a data provider in a list representation.  
 	It gets automatically sized to fill the space of the parent.
 
 	It provides the following methods, and is initialized whenever data is provided, so do that last.
@@ -201,10 +201,10 @@ do -- scrollbox
 	* `list:ResetData()`
 	--]]
 	function addon:CreateScrollList(parent)
-		return createScrollWidget(parent, 'list')
+		return createScrollWidget(parent, "list")
 	end
 
-	--[[ namespace:CreateScrollGrid(_parent_)
+	--[[ namespace:CreateScrollGrid(_parent_) ![](https://img.shields.io/badge/function-blue)
 	Creates and returns a scroll box with scroll bar and a data provider in a grid representation.  
 	It gets automatically sized to fill the space of the parent.
 
@@ -228,6 +228,6 @@ do -- scrollbox
 	* `grid:ResetData()`
 	--]]
 	function addon:CreateScrollGrid(parent)
-		return createScrollWidget(parent, 'grid')
+		return createScrollWidget(parent, "grid")
 	end
 end
